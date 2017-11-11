@@ -1,9 +1,10 @@
 #include <restful_facility.h>
 
 
-int open_connection(CURL *connection, char* url){
+void open_connection(CURL *connection, char* url){
 
-  //connection = curl_init();
+	connection = curl_easy_init();	//initialization
+	curl_easy_setopt(connection, CURLOPT_URL, url);
 
 }
 
