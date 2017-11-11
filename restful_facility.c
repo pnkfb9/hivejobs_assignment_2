@@ -5,12 +5,9 @@
 
 static size_t write_raw_data_callback(void *content,size_t actual_size,size_t mem_blocks, void* raw_data){
 
-		printf("callback in.\n");
 	 	size_t real_size = actual_size * mem_blocks;
 	  raw_data_block_t *blk = (raw_data_block_t *)raw_data;
-printf("after rawdata.\n");
 	  blk->mem_blk = realloc(blk->mem_blk, blk->size + real_size + 1);
-printf("after realloc.\n");
 		if(blk->mem_blk == NULL) {
 	    /* out of memory! */
 	    printf("Not enough memory left for data storage!\n");
@@ -46,14 +43,9 @@ printf("after realloc.\n");
 
 CURLcode fetch_data(CURL *connection)
 {
-	  printf("fetch.\n");
-	/* get it! */
-	if(connection == NULL)
-	{
-		printf("null\n");
-	}
+
 	  CURLcode result = curl_easy_perform(connection);
-  printf("after fetch.\n");
+
 	  /* check for errors */
 	  if(result != CURLE_OK) {
 	    fprintf(stderr, "curl_easy_perform() failed: %s\n",
@@ -71,7 +63,7 @@ void close_connection(CURL *connection,raw_data_block_t blk){
 
    /* close libcurl */
    	curl_global_cleanup();
-		printf("Connection successfully closed.\n");
+
 
 }
 
