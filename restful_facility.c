@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
-
 #include <restful_facility.h>
+
 
 static size_t write_raw_data_callback(void *content,size_t actual_size,size_t mem_blocks, void* raw_data){
 
@@ -27,7 +27,7 @@ static size_t write_raw_data_callback(void *content,size_t actual_size,size_t me
 	CURLcode result_code = CURLE_OK;
 
 	/*	attempt to open a connection to the specified URL*/
-	curl_easy_setopt(connection, CURLOPT_URL,"https://simpleexerciseforreadingjsondata-yvgbbyqpmq.now.sh/");
+	curl_easy_setopt(connection, CURLOPT_URL,url);
 
 	/* binding the data retrieval to the callback  */
   curl_easy_setopt(connection, CURLOPT_WRITEFUNCTION, write_raw_data_callback);
@@ -64,9 +64,5 @@ void close_connection(CURL *connection,raw_data_block_t blk){
    /* close libcurl */
    	curl_global_cleanup();
 
-
-}
-
-patient_info_t get_patient_information(){
 
 }

@@ -3,8 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <jsmn.h>
-#include <json_facility.h>
+
 #include <restful_facility.h>
+#include <json_facility.h>
+
+#define MAX_JSON_TOKENS 32
 
 int main(void){
 
@@ -14,6 +17,11 @@ int main(void){
   raw_data_block_t data_block;
   char* url = "https://simpleexerciseforreadingjsondata-yvgbbyqpmq.now.sh/";  //URL from which retrieve data
 
+  /* variables used for json parsing */
+  const char *js;
+  int num_tokens;
+  jsmntok_t tokens[MAX_JSON_TOKENS];
+
   /* initialization phase for data storage memory and connection handler */
   data_block.mem_blk = (char *)malloc(1);
   data_block.size = 0;
@@ -21,11 +29,6 @@ int main(void){
   curl_global_init(CURL_GLOBAL_ALL);
   connection_handle = curl_easy_init();
   jsmn_init(&parser);
-  jsmntok_t tokens[256];
-  const char *js;
-  int r;
-
-
 
   ret_code = open_connection(connection_handle,url, &data_block);
 
@@ -40,26 +43,20 @@ int main(void){
   if(ret_code == CURLE_OK)
   {
     js = (const char*)data_block.mem_blk;
-    r = jsmn_parse(&parser, js, strlen(js), tokens, 256);
+    num_tokens = jsmn_parse(&parser, js, strlen(js), tokens, MAX_JSON_TOKENS);
 
-    if(r != JSMN_ERROR_INVAL || r != JSMN_ERROR_NOMEM || r != JSMN_ERROR_PART )
+    if(num_tokens != JSMN_ERROR_INVAL || num_tokens!= JSMN_ERROR_NOMEM || num_tokens != JSMN_ERROR_PART )
     {
-        for (int i = 1; i < r; i++)
-        {
-		        if (jsoneq((const char*)data_block.mem_blk, &tokens[i], "Device") == 0)
-            {
-			           printf("Device result: %.*s\n", tokens[i+1].end-tokens[i+1].start, (const char*)data_block.mem_blk + tokens[i+1].start);
-                 i++;
-            }
 
-            if (jsoneq((const char*)data_block.mem_blk, &tokens[i], "Patient") == 0)
-            {
-			           printf("Patient result: %.*s\n", tokens[i+1].end-tokens[i+1].start, (const char*)data_block.mem_blk + tokens[i+1].start);
-                 i++;
-            }
-        }
+      patient_t* patient =get_patients_data((const char*)data_block.mem_blk,tokens,num_tokens);
 
-     }
+      while(patient != NULL)
+      {
+        printf("Device result: %s\nPatient result: %s\n",patient->patient_info->device_ID,patient->patient_info->patient_ID);
+        patient = patient->next_patient;
+
+      }
+    }
   }
   else
   {
